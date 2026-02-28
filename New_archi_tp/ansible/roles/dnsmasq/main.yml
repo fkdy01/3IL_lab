@@ -1,0 +1,11 @@
+dnsmasq_upstream_dns: ["1.1.1.1", "8.8.8.8"]
+dnsmasq_domain: "campus12avenue.fr"
+
+dnsmasq_interfaces:
+  - { name: "eth1", net: "infra" }
+  - { name: "eth2", net: "dev" }
+  - { name: "eth3", net: "prod" }
+
+dnsmasq_scopes: {}
+
+dnsmasq_disable_systemd_resolved: false

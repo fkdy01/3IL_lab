@@ -1,0 +1,22 @@
+{
+  "name": "ansible-tp-2526",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {}
+  },
+
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible sshpass python3-pip openssh-client ca-certificates && ansible --version && terraform --version",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "redhat.ansible",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+
+  "remoteUser": "vscode"
+}

@@ -1,0 +1,38 @@
+# Managed by Ansible - dnsmasq (DHCP/DNS) for TP 2526
+
+# Avoid bogus requests & private reverse lookups
+domain-needed
+bogus-priv
+
+# Bind only on required interfaces (avoid lo warning/conflicts)
+bind-interfaces
+except-interface=lo
+
+{% for i in dnsmasq_interfaces %}
+interface={{ i.name }}
+{% endfor %}
+
+# DNS: don't read /etc/resolv.conf, use explicit upstream resolvers
+no-resolv
+{% for ip in dnsmasq_upstream_dns %}
+server={{ ip }}
+{% endfor %}
+
+# Local domain (optional)
+domain={{ dnsmasq_domain }}
+expand-hosts
+
+# DHCP scopes
+{% for scope_name, s in dnsmasq_scopes.items() %}
+# --- {{ scope_name | upper }} ---
+dhcp-range={{ s.iface }},{{ s.start }},{{ s.end }},{{ s.netmask }},{{ s.lease }}
+dhcp-option={{ s.iface }},option:dns-server,{{ s.dns }}
+{% if s.router is defined %}
+dhcp-option={{ s.iface }},option:router,{{ s.router }}
+{% endif %}
+
+{% endfor %}
+
+# Logs (useful for TP)
+log-queries
+log-dhcp

@@ -1,0 +1,55 @@
+- name: Install dnsmasq
+  apt:
+    name: dnsmasq
+    state: present
+    update_cache: true
+
+# Optionnel : si tu veux éviter toute compétition avec systemd-resolved
+- name: Disable systemd-resolved (optional)
+  when: dnsmasq_disable_systemd_resolved | bool
+  block:
+    - name: Stop and disable systemd-resolved
+      systemd:
+        name: systemd-resolved
+        enabled: false
+        state: stopped
+
+    - name: Remove /etc/resolv.conf symlink if any
+      file:
+        path: /etc/resolv.conf
+        state: absent
+
+    - name: Create static /etc/resolv.conf
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          {% for ip in dnsmasq_upstream_dns %}
+          nameserver {{ ip }}
+          {% endfor %}
+        owner: root
+        group: root
+        mode: "0644"
+
+- name: Deploy dnsmasq configuration
+  template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart dnsmasq
+
+- name: Enable and start dnsmasq
+  systemd:
+    name: dnsmasq
+    enabled: true
+    state: started
+
+- name: Show listening ports (debug)
+  command: ss -lntup
+  changed_when: false
+  register: ss_out
+
+- name: Print ss output excerpt for dnsmasq
+  debug:
+    msg: "{{ ss_out.stdout_lines | select('search','(:53|dnsmasq)') | list }}"

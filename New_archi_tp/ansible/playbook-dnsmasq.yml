@@ -1,0 +1,5 @@
+- name: Configure dnsmasq (DHCP/DNS) on vm-dnsmasq-2526
+  hosts: dnsmasq
+  become: true
+  roles:
+    - dnsmasq
