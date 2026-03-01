@@ -1,3 +1,20 @@
+variable "snippets_datastore_id" {
+  description = "Datastore pour stocker les snippets cloud-init (ex: local)"
+  type        = string
+  default     = "local"
+}
+
+variable "proxmox_ssh_username" {
+  description = "Utilisateur Linux sur le node Proxmox (pour déposer les snippets)"
+  type        = string
+}
+
+variable "proxmox_ssh_password" {
+  description = "Mot de passe de l'utilisateur Linux (SSH) sur le node Proxmox"
+  type        = string
+  sensitive   = true
+}
+
 variable "proxmox_endpoint" {
   description = "Ex: https://pve.example:8006/"
   type        = string
@@ -26,8 +43,8 @@ variable "dnsmasq_vm" {
   type = object({
     name         = string
     vm_id        = number
-    template_vm  = number   # VMID du template cloud-init existant
-    datastore_id = string   # ex: local-lvm
+    template_vm  = number # VMID du template cloud-init existant
+    datastore_id = string # ex: local-lvm
     cores        = number
     memory_mb    = number
     disk_gb      = number
@@ -50,3 +67,4 @@ variable "networks" {
     prod  = { bridge = "vmbr30", ip_cidr = "10.10.30.10/24" }
   }
 }
+

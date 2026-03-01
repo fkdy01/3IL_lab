@@ -5,9 +5,19 @@ locals {
   nics = [
     { name = "wan", bridge = "vmbr0", ip_cidr = "dhcp" },
     { name = "infra", bridge = var.networks.infra.bridge, ip_cidr = var.networks.infra.ip_cidr },
-    { name = "dev",   bridge = var.networks.dev.bridge,   ip_cidr = var.networks.dev.ip_cidr   },
-    { name = "prod",  bridge = var.networks.prod.bridge,  ip_cidr = var.networks.prod.ip_cidr  },
+    { name = "dev", bridge = var.networks.dev.bridge, ip_cidr = var.networks.dev.ip_cidr },
+    { name = "prod", bridge = var.networks.prod.bridge, ip_cidr = var.networks.prod.ip_cidr },
   ]
+}
+
+resource "proxmox_virtual_environment_file" "dnsmasq_user_data" {
+  content_type = "snippets"
+  datastore_id = var.snippets_datastore_id # ex: "local"
+  node_name    = "BO-3IL-02"
+
+  source_file {
+    path = "${path.module}/cloud-init/dnsmasq-user-data.yaml"
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "dnsmasq" {
@@ -62,6 +72,7 @@ resource "proxmox_virtual_environment_vm" "dnsmasq" {
         }
       }
     }
+    user_data_file_id = proxmox_virtual_environment_file.dnsmasq_user_data.id
   }
 
   # 3 NICs branchées sur les bridges Linux vmbr10/20/30

@@ -1,0 +1,34 @@
+#cloud-config
+ssh_pwauth: true
+disable_root: true
+
+users:
+  - default
+  - name: ansible
+    lock_passwd: false
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+
+chpasswd:
+  list: |
+    ansible:bienvenue
+  expire: false
+
+package_update: true
+packages:
+  - openssh-server
+  - qemu-guest-agent
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-ansible-password.conf
+    permissions: "0644"
+    content: |
+      PasswordAuthentication yes
+      KbdInteractiveAuthentication no
+      PermitRootLogin no
+
+runcmd:
+  - systemctl enable --now qemu-guest-agent
+  - sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+  - systemctl restart ssh
